@@ -1,0 +1,41 @@
+[build]
+  publish = "outputs/static_site"
+  functions = "netlify/functions"
+  command = "npm run build"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/data/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/server.js"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/server.log"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/start_server.*"
+  to = "/404.html"
+  status = 404
+  force = true
