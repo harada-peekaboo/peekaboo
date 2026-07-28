@@ -1,0 +1,14 @@
+{
+  "name": "peekaboo-reception-entry",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node -e \"console.log('Static site ready for Netlify')\""
+  },
+  "dependencies": {
+    "@netlify/blobs": "^9.1.0"
+  },
+  "engines": {
+    "node": "20.x"
+  }
+}
