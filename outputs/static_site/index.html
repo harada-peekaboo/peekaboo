@@ -1,0 +1,1529 @@
+﻿<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PEEK-A-BOO レセプション採用エントリー</title>
+  <meta name="description" content="美容室PEEK-A-BOOのレセプションスタッフ採用エントリーページです。仕事内容、魅力、募集要項を確認して応募できます。">
+  <style>
+    /* =========================================================
+       PEEK-A-BOO Reception Entry Page
+       - 写真は下記の --photo-* を差し替えるだけで変更できます。
+       - 管理設定は /api 経由で保存します。Netlify Functions またはローカルサーバーで動作します。
+       ========================================================= */
+    :root {
+      --ink: #111111;
+      --charcoal: #2a2a2a;
+      --muted: #717171;
+      --line: #dedede;
+      --paper: #ffffff;
+      --soft: #f6f5f3;
+      --warm: #ece8e1;
+      --accent: #b8a278;
+      --accent-dark: #7f6a43;
+      --shadow: 0 18px 48px rgba(17, 17, 17, 0.09);
+      --radius: 8px;
+      --logo: url("https://recruit.peek-a-boo.co.jp/wp-content/themes/pkb_job_information251027/img/icon-img01.webp");
+      --photo-hero: url("https://recruit.peek-a-boo.co.jp/wp-content/themes/pkb_job_information251027/img/slid-img01.webp");
+      --photo-reception: url("https://recruit.peek-a-boo.co.jp/wp-content/themes/pkb_job_information251027/img/slid-img02.webp");
+      --photo-salon: url("https://recruit.peek-a-boo.co.jp/wp-content/themes/pkb_job_information251027/img/slid-img01.webp");
+      --photo-staff: url("https://recruit.peek-a-boo.co.jp/wp-content/themes/pkb_job_information251027/img/slid-img02.webp");
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.8;
+      letter-spacing: 0;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 64px;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.92);
+      border-bottom: 1px solid rgba(222, 222, 222, 0.78);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      width: min(188px, 44vw);
+      height: 28px;
+      background-image: var(--logo);
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: left center;
+    }
+
+    .header-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 16px;
+      color: #fff;
+      background: var(--ink);
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .hero {
+      position: relative;
+      min-height: calc(100svh - 64px);
+      display: grid;
+      align-items: end;
+      padding: 0 0 34px;
+      overflow: hidden;
+      background: var(--soft);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.18) 48%, rgba(0, 0, 0, 0.62) 100%),
+        var(--photo-hero);
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.01);
+    }
+
+    .hero-content {
+      position: relative;
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      color: #fff;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: rgba(255, 255, 255, 0.86);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin: 0;
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, Georgia, serif;
+      font-size: clamp(34px, 11vw, 78px);
+      line-height: 1.13;
+      font-weight: 500;
+      text-wrap: balance;
+    }
+
+    .hero-copy {
+      max-width: 620px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: clamp(15px, 4vw, 19px);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 13px 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      line-height: 1.2;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button-primary {
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #fff;
+    }
+
+    .button-dark {
+      color: #fff;
+      background: var(--ink);
+      border: 1px solid var(--ink);
+    }
+
+    .button-secondary {
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .button-outline {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.42);
+    }
+
+    main {
+      overflow: hidden;
+    }
+
+    .section {
+      padding: 74px 20px;
+    }
+
+    .section-soft {
+      background: var(--soft);
+    }
+
+    .container {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+
+    .section-head {
+      margin-bottom: 30px;
+    }
+
+    .section-label {
+      margin: 0 0 8px;
+      color: var(--accent-dark);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0;
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, Georgia, serif;
+      font-size: clamp(28px, 7vw, 46px);
+      line-height: 1.25;
+      font-weight: 500;
+      text-wrap: balance;
+    }
+
+    .lead {
+      max-width: 720px;
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .intro-grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .photo {
+      position: relative;
+      min-height: 260px;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: var(--warm);
+      box-shadow: var(--shadow);
+    }
+
+    .photo::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.6s ease;
+    }
+
+    .photo:hover::before {
+      transform: scale(1.035);
+    }
+
+    .photo-reception::before { background-image: var(--photo-reception); }
+    .photo-salon::before { background-image: var(--photo-salon); }
+    .photo-staff::before { background-image: var(--photo-staff); }
+
+    .card-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      padding: 22px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .card-number {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--accent-dark);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 13px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .check-list {
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .check-list li {
+      position: relative;
+      padding: 16px 16px 16px 46px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      font-weight: 700;
+    }
+
+    .check-list li::before {
+      content: "";
+      position: absolute;
+      left: 18px;
+      top: 22px;
+      width: 12px;
+      height: 7px;
+      border-left: 2px solid var(--accent-dark);
+      border-bottom: 2px solid var(--accent-dark);
+      transform: rotate(-45deg);
+    }
+
+    .two-column {
+      display: grid;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .requirements {
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .requirements dl {
+      margin: 0;
+    }
+
+    .requirements-row {
+      display: grid;
+      gap: 6px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .requirements-row:last-child {
+      border-bottom: 0;
+    }
+
+    .requirements dt {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .requirements dd {
+      margin: 0;
+      color: var(--charcoal);
+      font-weight: 700;
+    }
+
+    .form-wrap {
+      display: grid;
+      gap: 26px;
+      align-items: start;
+    }
+
+    .form-panel {
+      padding: 24px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    label {
+      color: var(--charcoal);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .required {
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 13px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #cfcfcf;
+      border-radius: 6px;
+      outline: 0;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent-dark);
+      box-shadow: 0 0 0 3px rgba(184, 162, 120, 0.22);
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .help {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .date-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .interview-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      min-width: 0;
+      padding: 12px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .interview-row input,
+    .interview-row select {
+      min-width: 0;
+    }
+
+    .message {
+      display: none;
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message-success {
+      color: #1e4930;
+      background: #edf7f0;
+      border: 1px solid #b9ddc4;
+    }
+
+    .message-error {
+      color: #7b2323;
+      background: #fff0f0;
+      border: 1px solid #e3b6b6;
+    }
+
+    .message-info {
+      color: #3d3525;
+      background: #f8f2e6;
+      border: 1px solid #decda8;
+    }
+
+    .note-box {
+      padding: 22px;
+      color: #fff;
+      background: var(--ink);
+      border-radius: var(--radius);
+    }
+
+    .note-box h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .note-box p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 14px;
+    }
+
+    .site-footer {
+      padding: 42px 20px 28px;
+      color: rgba(255, 255, 255, 0.72);
+      background: #111;
+      font-size: 12px;
+    }
+
+    .footer-inner {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 22px;
+    }
+
+    .footer-title {
+      margin: 0 0 10px;
+      color: #fff;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 14px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .footer-address {
+      margin: 0;
+      font-style: normal;
+      line-height: 1.9;
+    }
+
+    .footer-address a {
+      color: #fff;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .footer-bottom p {
+      margin: 0;
+    }
+
+    .admin-link {
+      color: rgba(255, 255, 255, 0.64);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.34);
+      font-size: 11px;
+    }
+
+    .admin-section {
+      padding: 64px 20px;
+      background: #f1f0ed;
+    }
+
+    .admin-section.admin-mini {
+      padding: 24px 20px 46px;
+      background: #f1f0ed;
+    }
+
+    .admin-panel {
+      width: min(920px, 100%);
+      margin: 0 auto;
+      padding: 24px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .admin-mini .admin-panel {
+      width: min(680px, 100%);
+      padding: 18px;
+      box-shadow: 0 12px 30px rgba(17, 17, 17, 0.08);
+    }
+
+    .admin-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .admin-head h2 {
+      font-size: clamp(24px, 6vw, 36px);
+    }
+
+    .admin-mini .admin-head {
+      margin-bottom: 14px;
+    }
+
+    .admin-mini .admin-head h2 {
+      font-size: 22px;
+    }
+
+    .admin-close {
+      min-width: 42px;
+      min-height: 42px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .admin-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .admin-subhead {
+      margin: 28px 0 12px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      font-size: 17px;
+    }
+
+    .admin-copy-box {
+      min-height: 120px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .entry-closed {
+      text-align: left;
+    }
+
+    .entry-closed h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .entry-closed p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    @media (min-width: 680px) {
+      .site-header {
+        padding-inline: 34px;
+      }
+
+      .section {
+        padding-block: 96px;
+      }
+
+      .intro-grid,
+      .card-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .check-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .form-grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .interview-row {
+        grid-template-columns: minmax(0, 1fr) 156px;
+      }
+
+      .requirements-row {
+        grid-template-columns: 160px 1fr;
+        gap: 18px;
+      }
+
+      .admin-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 960px) {
+      .hero {
+        min-height: 720px;
+      }
+
+      .two-column {
+        grid-template-columns: 0.9fr 1.1fr;
+      }
+
+      .form-wrap {
+        grid-template-columns: 0.82fr 1.18fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" aria-label="サイトヘッダー">
+    <a class="brand" href="#top" aria-label="PEEK-A-BOO"></a>
+    <a class="header-link" href="#entry" data-apply-link>応募する</a>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-label="ファーストビュー">
+      <div class="hero-content">
+        <p class="eyebrow">Reception Recruitment</p>
+        <h1>PEEK-A-BOOの顔として、お客様を迎える仕事。</h1>
+        <p class="hero-copy">美容室の第一印象をつくるレセプションスタッフ募集</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#entry" data-apply-link>応募フォームへ</a>
+          <a class="button button-outline" href="#work">仕事内容を見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <p class="section-label">Salon Atmosphere</p>
+          <h2>上質なサロン体験は、受付からはじまります。</h2>
+          <p class="lead">ご来店されたお客様をあたたかく迎え、予約や会計、スタイリストとの連携を通じて、サロン全体の心地よい流れを支えるポジションです。</p>
+        </div>
+        <div class="intro-grid">
+          <div class="photo photo-reception" aria-label="PEEK-A-BOOの受付写真"></div>
+          <div class="photo photo-salon" aria-label="PEEK-A-BOOのサロン内観写真"></div>
+          <div class="photo photo-staff" aria-label="PEEK-A-BOOの店内写真"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft" id="work">
+      <div class="container">
+        <div class="section-head">
+          <p class="section-label">Work</p>
+          <h2>レセプションの仕事内容</h2>
+          <p class="lead">お客様と美容師の間に立ち、スムーズで気持ちのよいサロン運営を支える仕事です。</p>
+        </div>
+        <div class="card-grid">
+          <article class="card">
+            <span class="card-number">01</span>
+            <h3>受付対応</h3>
+            <p>来店されたお客様をお迎えし、席へのご案内や担当者への取り次ぎを行います。</p>
+          </article>
+          <article class="card">
+            <span class="card-number">02</span>
+            <h3>電話対応</h3>
+            <p>予約や問い合わせの電話に、明るく丁寧に対応します。</p>
+          </article>
+          <article class="card">
+            <span class="card-number">03</span>
+            <h3>予約管理</h3>
+            <p>予約状況を確認しながら、サロン全体が円滑に動くよう調整します。</p>
+          </article>
+          <article class="card">
+            <span class="card-number">04</span>
+            <h3>お会計</h3>
+            <p>施術後のお会計や次回予約のご案内を担当します。</p>
+          </article>
+          <article class="card">
+            <span class="card-number">05</span>
+            <h3>お客様・美容師のサポート</h3>
+            <p>お客様のご要望を受け止め、美容師へ正確につなぎます。</p>
+          </article>
+          <article class="card">
+            <span class="card-number">06</span>
+            <h3>店内のスムーズな運営補助</h3>
+            <p>備品確認や店内整理など、快適なサロンづくりを支えます。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container two-column">
+        <div class="section-head">
+          <p class="section-label">Attraction</p>
+          <h2>この仕事の魅力</h2>
+          <p class="lead">美容が好き、人と接することが好き。その気持ちを活かしながら、接客力とチームで働く力を磨けます。</p>
+        </div>
+        <ul class="check-list">
+          <li>美容業界で働ける</li>
+          <li>接客スキルが身につく</li>
+          <li>お客様と美容師をつなぐ大切な役割</li>
+          <li>チームで働く安心感</li>
+          <li>未経験でも始めやすい</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section section-soft">
+      <div class="container two-column">
+        <div class="photo photo-reception" aria-label="PEEK-A-BOOの受付写真"></div>
+        <div>
+          <div class="section-head">
+            <p class="section-label">Personality</p>
+            <h2>求める人物像</h2>
+          </div>
+          <ul class="check-list">
+            <li>人と話すことが好きな方</li>
+            <li>明るく丁寧な対応ができる方</li>
+            <li>美容やファッションに興味がある方</li>
+            <li>チームワークを大切にできる方</li>
+            <li>基本的なPC操作ができる方</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <p class="section-label">Requirements</p>
+          <h2>募集要項</h2>
+        </div>
+        <div class="requirements">
+          <dl>
+            <div class="requirements-row">
+              <dt>職種</dt>
+              <dd>レセプション</dd>
+            </div>
+            <div class="requirements-row">
+              <dt>勤務地</dt>
+              <dd>
+                PEEK-A-BOO各店舗のいずれか<br>
+                表参道／原宿／銀座／池袋／恵比寿エリア<br>
+                ※店舗間異動・ヘルプあり。転居を伴う転勤はありません。
+              </dd>
+            </div>
+            <div class="requirements-row">
+              <dt>雇用形態</dt>
+              <dd>正社員</dd>
+            </div>
+            <div class="requirements-row">
+              <dt>応募資格</dt>
+              <dd>
+                未経験歓迎・学歴不問。美容師免許は不要です。<br>
+                接客、美容、ファッションに興味のある方を歓迎します。
+              </dd>
+            </div>
+            <div class="requirements-row">
+              <dt>採用人数</dt>
+              <dd>若干名</dd>
+            </div>
+            <div class="requirements-row">
+              <dt>勤務時間</dt>
+              <dd>
+                9:30〜21:30の間でシフト制（実働8時間）<br>
+                早番 9:30〜18:30／中番 10:30〜19:30／遅番 11:30〜20:30<br>
+                ※店舗により時間帯が異なる場合があります。残業は月20時間以下です。
+              </dd>
+            </div>
+            <div class="requirements-row">
+              <dt>給与</dt>
+              <dd>
+                月給240,000円以上＋各種手当＋賞与年2回<br>
+                ※経験・スキルなどを考慮して決定します。<br>
+                ※試用期間6ヶ月は月給225,000円以上です。
+              </dd>
+            </div>
+            <div class="requirements-row">
+              <dt>手当</dt>
+              <dd>
+                交通費支給（月20,000円まで）、皆勤手当、役職手当、店販手当
+              </dd>
+            </div>
+            <div class="requirements-row">
+              <dt>休日</dt>
+              <dd>
+                完全週休2日制（シフト制）<br>
+                有給休暇、慶弔休暇、産前・産後休暇、育児休暇、夏季・冬季休暇
+              </dd>
+            </div>
+            <div class="requirements-row">
+              <dt>待遇</dt>
+              <dd>
+                社会保険完備、昇給年1回、賞与年2回、制服貸与、社割制度、研修制度、健康診断、店内禁煙
+              </dd>
+            </div>
+            <div class="requirements-row">
+              <dt>応募方法</dt>
+              <dd>
+                下記応募フォームよりご連絡ください。内容を確認のうえ、担当者より面接日程についてご連絡いたします。
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft" id="entry">
+      <div class="container form-wrap">
+        <div>
+          <div class="section-head">
+            <p class="section-label">Entry Form</p>
+            <h2>応募フォーム</h2>
+            <p class="lead">入力後、「メール画面を開いて送信する」を押すと、応募内容が入ったメール作成画面が開きます。</p>
+          </div>
+          <div class="note-box">
+            <h3>面接希望日時について</h3>
+            <p>候補日は3つまで入力できます。月曜日は定休日にあたる可能性があるため、月曜以外の日程をご指定ください。</p>
+          </div>
+        </div>
+
+        <div class="form-panel entry-closed" id="entryClosedPanel" hidden>
+          <h3>現在、募集を停止しています。</h3>
+          <p id="closedMessageText">現在、レセプション職の募集は行っておりません。募集再開までしばらくお待ちください。</p>
+        </div>
+
+        <form class="form-panel" id="entryForm">
+          <div class="form-grid two">
+            <div class="field">
+              <label for="name">お名前 <span class="required">必須</span></label>
+              <input id="name" name="name" type="text" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="kana">フリガナ <span class="required">必須</span></label>
+              <input id="kana" name="kana" type="text" required>
+            </div>
+            <div class="field">
+              <label for="age">年齢 <span class="required">必須</span></label>
+              <input id="age" name="age" type="number" min="16" max="80" inputmode="numeric" required>
+            </div>
+            <div class="field">
+              <label for="tel">電話番号 <span class="required">必須</span></label>
+              <input id="tel" name="tel" type="tel" autocomplete="tel" required>
+            </div>
+            <div class="field">
+              <label for="email">メールアドレス <span class="required">必須</span></label>
+              <input id="email" name="email" type="email" autocomplete="email" required>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:16px;">
+            <label>面接希望日時候補</label>
+            <p class="help">月曜日以外の日付を選び、時間は10:00〜18:00の30分刻みから選択してください。</p>
+            <div class="date-grid">
+              <div class="interview-row">
+                <input name="interviewDate1" type="date" aria-label="面接希望日 第1候補">
+                <select name="interviewTime1" aria-label="面接希望時間 第1候補"></select>
+              </div>
+              <div class="interview-row">
+                <input name="interviewDate2" type="date" aria-label="面接希望日 第2候補">
+                <select name="interviewTime2" aria-label="面接希望時間 第2候補"></select>
+              </div>
+              <div class="interview-row">
+                <input name="interviewDate3" type="date" aria-label="面接希望日 第3候補">
+                <select name="interviewTime3" aria-label="面接希望時間 第3候補"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:16px;">
+            <label for="messageText">志望動機・質問</label>
+            <textarea id="messageText" name="messageText" placeholder="志望動機やご質問があればご入力ください。"></textarea>
+          </div>
+
+          <button class="button button-dark" type="submit" style="width:100%; margin-top:18px;">メール画面を開いて送信する</button>
+          <p class="help" style="margin-top:10px;">メールソフトが開いたあと、内容をご確認のうえ送信してください。</p>
+          <div class="message message-error" id="errorMessage" role="alert"></div>
+          <div class="message message-success" id="successMessage" role="status">ご応募ありがとうございます。内容を確認のうえ、担当者よりご連絡いたします。</div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-title">PEEK-A-BOO HEAD OFFICE</p>
+        <address class="footer-address">
+          〒150-0001 東京都渋谷区神宮前4-4-12 第一唐沢ビル3F<br>
+          TEL <a href="tel:0354115422">03-5411-5422</a> / FAX 03-5411-5423<br>
+          MAIL <a href="mailto:office@peek-a-boo.co.jp">office@peek-a-boo.co.jp</a>
+        </address>
+      </div>
+      <div class="footer-bottom">
+        <p>PEEK-A-BOO Reception Recruitment</p>
+        <a class="admin-link" id="adminOpenLink" href="#admin">管理</a>
+      </div>
+    </div>
+  </footer>
+
+  <section class="admin-section admin-mini" id="admin" hidden>
+    <div class="admin-panel">
+      <div class="admin-head">
+        <div>
+          <p class="section-label">Admin</p>
+          <h2>管理</h2>
+          <p class="help">管理設定はサーバー側に保存され、他のデバイスにも反映されます。</p>
+        </div>
+        <button class="admin-close" id="adminCloseButton" type="button" aria-label="管理を閉じる">×</button>
+      </div>
+
+      <form id="adminLoginForm">
+        <div class="field">
+          <label for="adminPassword">パスワード</label>
+          <input id="adminPassword" type="password" autocomplete="current-password" required>
+          <p class="help">初期パスワード: peekaboo2026（ログイン後に変更してください）</p>
+        </div>
+        <div class="admin-actions">
+          <button class="button button-dark" type="submit">ログイン</button>
+        </div>
+        <div class="message message-error" id="adminLoginMessage" role="alert"></div>
+      </form>
+
+      <div id="adminDashboard" hidden>
+        <form id="adminSettingsForm">
+          <div class="admin-grid">
+            <div class="field">
+              <label for="adminRecipientEmail">応募先メール</label>
+              <input id="adminRecipientEmail" name="recipientEmail" type="email" required>
+            </div>
+            <div class="field">
+              <label for="adminRecruitmentStatus">募集状態</label>
+              <select id="adminRecruitmentStatus" name="recruitmentStatus">
+                <option value="open">募集中</option>
+                <option value="closed">募集停止</option>
+              </select>
+            </div>
+            <div class="field" style="grid-column:1 / -1;">
+              <label for="adminClosedMessage">募集停止時の表示文</label>
+              <textarea id="adminClosedMessage" name="closedMessage" required></textarea>
+            </div>
+            <div class="field" style="grid-column:1 / -1;">
+              <label for="adminMailSubject">応募メール件名</label>
+              <input id="adminMailSubject" name="mailSubject" type="text" required>
+            </div>
+            <div class="field" style="grid-column:1 / -1;">
+              <label for="adminSuccessMessage">送信完了メッセージ</label>
+              <textarea id="adminSuccessMessage" name="successMessage" required></textarea>
+            </div>
+          </div>
+          <div class="admin-actions">
+            <button class="button button-dark" type="submit">確定</button>
+            <button class="button button-secondary" id="adminResetSettings" type="button">初期設定に戻す</button>
+          </div>
+          <div class="message message-success" id="adminSettingsMessage" role="status"></div>
+        </form>
+
+        <h3 class="admin-subhead">パスワード変更</h3>
+        <form id="adminPasswordForm">
+          <div class="admin-grid">
+            <div class="field">
+              <label for="adminNewPassword">新しいパスワード</label>
+              <input id="adminNewPassword" type="password" autocomplete="new-password" minlength="8" required>
+            </div>
+            <div class="field">
+              <label for="adminConfirmPassword">確認</label>
+              <input id="adminConfirmPassword" type="password" autocomplete="new-password" minlength="8" required>
+            </div>
+          </div>
+          <div class="admin-actions">
+            <button class="button button-dark" type="submit">変更</button>
+            <button class="button button-secondary" id="adminLogoutButton" type="button">ログアウト</button>
+          </div>
+          <div class="message message-success" id="adminPasswordMessage" role="status"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const ADMIN_TOKEN_KEY = "peekabooReceptionAdminToken";
+    const ADMIN_LOCAL_MODE_KEY = "peekabooReceptionAdminLocalMode";
+    const STATIC_SETTINGS_KEY = "peekabooReceptionStaticSettings";
+    const STATIC_PASSWORD_KEY = "peekabooReceptionStaticPasswordHash";
+    const DEFAULT_ADMIN_PASSWORD_HASH = "efd6a8959cbb86226a7382b57b7f18e89b72576ce048d267182a0bceebf8a1e9";
+    const STATIC_DEFAULT_SETTINGS = {
+      recipientEmail: "recruit@peek-a-boo.co.jp",
+      recruitmentStatus: "open",
+      closedMessage: "現在、レセプション職の募集は行っておりません。募集再開までしばらくお待ちください。",
+      mailSubject: "PEEK-A-BOO レセプション職 応募",
+      successMessage: "ご応募ありがとうございます。内容を確認のうえ、担当者よりご連絡いたします。"
+    };
+
+    let currentSettings = { ...STATIC_DEFAULT_SETTINGS };
+    let adminToken = sessionStorage.getItem(ADMIN_TOKEN_KEY) || "";
+    let adminMode = "server";
+
+    const form = document.getElementById("entryForm");
+    const errorMessage = document.getElementById("errorMessage");
+    const successMessage = document.getElementById("successMessage");
+    const entryClosedPanel = document.getElementById("entryClosedPanel");
+    const closedMessageText = document.getElementById("closedMessageText");
+    const adminSection = document.getElementById("admin");
+    const adminOpenLink = document.getElementById("adminOpenLink");
+    const adminCloseButton = document.getElementById("adminCloseButton");
+    const adminLoginForm = document.getElementById("adminLoginForm");
+    const adminLoginMessage = document.getElementById("adminLoginMessage");
+    const adminDashboard = document.getElementById("adminDashboard");
+    const adminSettingsForm = document.getElementById("adminSettingsForm");
+    const adminSettingsMessage = document.getElementById("adminSettingsMessage");
+    const adminPasswordForm = document.getElementById("adminPasswordForm");
+    const adminPasswordMessage = document.getElementById("adminPasswordMessage");
+    const adminLogoutButton = document.getElementById("adminLogoutButton");
+    const adminResetSettings = document.getElementById("adminResetSettings");
+
+    async function apiRequest(path, options = {}) {
+      const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+      if (options.auth !== false && adminToken) {
+        headers.Authorization = `Bearer ${adminToken}`;
+      }
+
+      const response = await fetch(path, {
+        method: options.method || "GET",
+        headers,
+        body: options.body ? JSON.stringify(options.body) : undefined
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+          adminToken = "";
+        }
+        throw new Error(data.error || "通信に失敗しました。");
+      }
+
+      return data;
+    }
+
+    function normalizeSettings(settings) {
+      return { ...STATIC_DEFAULT_SETTINGS, ...(settings || {}) };
+    }
+
+    function readLocalSettings() {
+      try {
+        return normalizeSettings(JSON.parse(localStorage.getItem(STATIC_SETTINGS_KEY) || "{}"));
+      } catch {
+        return normalizeSettings();
+      }
+    }
+
+    function writeLocalSettings(settings) {
+      const normalized = normalizeSettings(settings);
+      localStorage.setItem(STATIC_SETTINGS_KEY, JSON.stringify(normalized));
+      return normalized;
+    }
+
+    async function hashPassword(value) {
+      const bytes = new TextEncoder().encode(value);
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+    }
+
+    function localPasswordHash() {
+      return localStorage.getItem(STATIC_PASSWORD_KEY) || DEFAULT_ADMIN_PASSWORD_HASH;
+    }
+
+    function useLocalAdminMode(settings = readLocalSettings()) {
+      adminMode = "local";
+      adminToken = "";
+      sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+      sessionStorage.setItem(ADMIN_LOCAL_MODE_KEY, "1");
+      applyRecruitmentSettings(settings);
+      fillAdminSettingsForm(settings);
+    }
+
+    function shouldTryLocalAdmin(error) {
+      return false;
+    }
+
+    function applyRecruitmentSettings(settings = currentSettings) {
+      currentSettings = normalizeSettings(settings);
+      const isOpen = currentSettings.recruitmentStatus === "open";
+      form.hidden = !isOpen;
+      entryClosedPanel.hidden = isOpen;
+      closedMessageText.textContent = currentSettings.closedMessage;
+      successMessage.textContent = currentSettings.successMessage;
+      document.querySelectorAll("[data-apply-link]").forEach((link) => {
+        link.textContent = isOpen ? (link.classList.contains("header-link") ? "応募する" : "応募フォームへ") : "募集状況を見る";
+      });
+    }
+
+    function fillAdminSettingsForm(settings) {
+      const normalized = normalizeSettings(settings);
+      adminSettingsForm.elements.recipientEmail.value = normalized.recipientEmail;
+      adminSettingsForm.elements.recruitmentStatus.value = normalized.recruitmentStatus;
+      adminSettingsForm.elements.closedMessage.value = normalized.closedMessage;
+      adminSettingsForm.elements.mailSubject.value = normalized.mailSubject;
+      adminSettingsForm.elements.successMessage.value = normalized.successMessage;
+    }
+
+    async function loadPublicSettings() {
+      try {
+        const data = await apiRequest("/api/settings", { auth: false });
+        applyRecruitmentSettings(data.settings);
+      } catch {
+        applyRecruitmentSettings(STATIC_DEFAULT_SETTINGS);
+      }
+    }
+
+    async function refreshAdminSettings() {
+      if (adminMode === "local") {
+        const settings = readLocalSettings();
+        applyRecruitmentSettings(settings);
+        fillAdminSettingsForm(settings);
+        return settings;
+      }
+
+      const data = await apiRequest("/api/admin/settings");
+      applyRecruitmentSettings(data.settings);
+      fillAdminSettingsForm(data.settings);
+      return data.settings;
+    }
+
+    function showAdminMessage(element, message, type = "success") {
+      element.classList.remove("message-success", "message-error", "message-info", "show");
+      element.classList.add(type === "error" ? "message-error" : "message-success", "show");
+      element.textContent = message;
+    }
+
+    function openAdminPanel() {
+      adminSection.hidden = false;
+      fillAdminSettingsForm(currentSettings);
+      adminSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      adminLoginMessage.classList.remove("show");
+      adminSettingsMessage.classList.remove("show");
+      adminPasswordMessage.classList.remove("show");
+      if (adminMode === "local") {
+        unlockAdminPanel();
+        showAdminMessage(adminSettingsMessage, "簡易管理モードです。設定はこのブラウザ内に保存されます。", "info");
+      } else if (adminToken) {
+        refreshAdminSettings()
+          .then(() => unlockAdminPanel())
+          .catch(() => logoutAdminPanel());
+      }
+    }
+
+    function closeAdminPanel() {
+      adminSection.hidden = true;
+      if (location.hash === "#admin") {
+        history.replaceState(null, "", location.pathname + location.search);
+      }
+    }
+
+    function unlockAdminPanel() {
+      adminLoginForm.hidden = true;
+      adminDashboard.hidden = false;
+      fillAdminSettingsForm(currentSettings);
+    }
+
+    function logoutAdminPanel() {
+      adminLoginForm.hidden = false;
+      adminDashboard.hidden = true;
+      adminLoginForm.reset();
+      adminPasswordForm.reset();
+      sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+      sessionStorage.removeItem(ADMIN_LOCAL_MODE_KEY);
+      adminToken = "";
+      adminMode = "server";
+    }
+
+    function buildTimeOptions() {
+      const selects = document.querySelectorAll('select[name^="interviewTime"]');
+      const options = ['<option value="">時間を選択</option>'];
+      for (let hour = 10; hour <= 18; hour += 1) {
+        for (let minute of [0, 30]) {
+          if (hour === 18 && minute === 30) continue;
+          const time = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+          options.push(`<option value="${time}">${time}</option>`);
+        }
+      }
+      selects.forEach((select) => {
+        select.innerHTML = options.join("");
+      });
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      const date = new Date(`${value}T00:00`);
+      if (Number.isNaN(date.getTime())) return value;
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const dd = String(date.getDate()).padStart(2, "0");
+      const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+      return `${yyyy}/${mm}/${dd}（${weekdays[date.getDay()]}）`;
+    }
+
+    function formatInterview(formData, index) {
+      const date = formData.get(`interviewDate${index}`);
+      const time = formData.get(`interviewTime${index}`);
+      if (!date && !time) return "未入力";
+      if (!date || !time) return "日付または時間が未入力";
+      return `${formatDate(date)}${time}`;
+    }
+
+    function isMondayDate(value) {
+      if (!value) return false;
+      return new Date(`${value}T00:00`).getDay() === 1;
+    }
+
+    function hasMondayInterview(formData) {
+      return ["interviewDate1", "interviewDate2", "interviewDate3"].some((key) => {
+        const value = formData.get(key);
+        return value && isMondayDate(value);
+      });
+    }
+
+    function hasIncompleteInterview(formData) {
+      return [1, 2, 3].some((index) => {
+        const date = formData.get(`interviewDate${index}`);
+        const time = formData.get(`interviewTime${index}`);
+        return Boolean(date || time) && !(date && time);
+      });
+    }
+
+    function showError(message) {
+      successMessage.classList.remove("show");
+      errorMessage.textContent = message;
+      errorMessage.classList.add("show");
+    }
+
+    function preventMondaySelection() {
+      document.querySelectorAll('input[name^="interviewDate"]').forEach((input) => {
+        input.addEventListener("change", () => {
+          if (!isMondayDate(input.value)) return;
+          input.value = "";
+          const row = input.closest(".interview-row");
+          const select = row ? row.querySelector('select[name^="interviewTime"]') : null;
+          if (select) select.value = "";
+          showError("月曜日は選択できません。火曜日〜日曜日の日程をお選びください。");
+        });
+      });
+    }
+
+    buildTimeOptions();
+    preventMondaySelection();
+    loadPublicSettings();
+
+    if (location.hash === "#admin") {
+      openAdminPanel();
+    }
+
+    adminOpenLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      history.replaceState(null, "", "#admin");
+      openAdminPanel();
+    });
+
+    adminCloseButton.addEventListener("click", closeAdminPanel);
+
+    adminLoginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const password = document.getElementById("adminPassword").value;
+      try {
+        const data = await apiRequest("/api/admin/login", {
+          method: "POST",
+          auth: false,
+          body: { password }
+        });
+        adminToken = data.token;
+        sessionStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
+        applyRecruitmentSettings(data.settings);
+        unlockAdminPanel();
+        adminLoginForm.reset();
+      } catch (error) {
+        showAdminMessage(adminLoginMessage, error.message, "error");
+      }
+    });
+
+    adminSettingsForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(adminSettingsForm);
+      const settings = {
+        recipientEmail: formData.get("recipientEmail"),
+        recruitmentStatus: formData.get("recruitmentStatus"),
+        closedMessage: formData.get("closedMessage"),
+        mailSubject: formData.get("mailSubject"),
+        successMessage: formData.get("successMessage")
+      };
+      if (adminMode === "local") {
+        const savedSettings = writeLocalSettings(settings);
+        applyRecruitmentSettings(savedSettings);
+        fillAdminSettingsForm(savedSettings);
+        showAdminMessage(adminSettingsMessage, "このブラウザ内に設定を保存しました。");
+        return;
+      }
+
+      try {
+        const data = await apiRequest("/api/admin/settings", {
+          method: "POST",
+          body: { settings }
+        });
+        applyRecruitmentSettings(data.settings);
+        fillAdminSettingsForm(data.settings);
+        showAdminMessage(adminSettingsMessage, "サーバー側の設定を確定しました。");
+      } catch (error) {
+        showAdminMessage(adminSettingsMessage, error.message, "error");
+      }
+    });
+
+    adminResetSettings.addEventListener("click", async () => {
+      if (adminMode === "local") {
+        localStorage.removeItem(STATIC_SETTINGS_KEY);
+        const settings = readLocalSettings();
+        applyRecruitmentSettings(settings);
+        fillAdminSettingsForm(settings);
+        showAdminMessage(adminSettingsMessage, "このブラウザ内の設定を初期化しました。");
+        return;
+      }
+
+      try {
+        const data = await apiRequest("/api/admin/reset-settings", { method: "POST" });
+        applyRecruitmentSettings(data.settings);
+        fillAdminSettingsForm(data.settings);
+        showAdminMessage(adminSettingsMessage, "初期設定に戻しました。");
+      } catch (error) {
+        showAdminMessage(adminSettingsMessage, error.message, "error");
+      }
+    });
+
+    adminPasswordForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const newPassword = document.getElementById("adminNewPassword").value;
+      const confirmPassword = document.getElementById("adminConfirmPassword").value;
+      if (newPassword !== confirmPassword) {
+        showAdminMessage(adminPasswordMessage, "確認用パスワードが一致しません。", "error");
+        return;
+      }
+      if (adminMode === "local") {
+        localStorage.setItem(STATIC_PASSWORD_KEY, await hashPassword(newPassword));
+        adminPasswordForm.reset();
+        showAdminMessage(adminPasswordMessage, "簡易管理モードのパスワードを変更しました。");
+        return;
+      }
+
+      try {
+        await apiRequest("/api/admin/password", {
+          method: "POST",
+          body: { newPassword }
+        });
+        adminPasswordForm.reset();
+        showAdminMessage(adminPasswordMessage, "パスワードを変更しました。");
+      } catch (error) {
+        showAdminMessage(adminPasswordMessage, error.message, "error");
+      }
+    });
+
+    adminLogoutButton.addEventListener("click", logoutAdminPanel);
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      errorMessage.classList.remove("show");
+      successMessage.classList.remove("show");
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const formData = new FormData(form);
+
+      if (currentSettings.recruitmentStatus !== "open") {
+        showError(currentSettings.closedMessage);
+        return;
+      }
+
+      if (hasMondayInterview(formData)) {
+        showError("面接希望日時は月曜日以外でご入力ください。");
+        return;
+      }
+
+      if (hasIncompleteInterview(formData)) {
+        showError("面接希望日時は、日付と時間をセットでご入力ください。");
+        return;
+      }
+
+      const body = [
+        "PEEK-A-BOO レセプション職へ応募します。",
+        "",
+        `お名前：${formData.get("name")}`,
+        `フリガナ：${formData.get("kana")}`,
+        `年齢：${formData.get("age")}`,
+        `電話番号：${formData.get("tel")}`,
+        `メールアドレス：${formData.get("email")}`,
+        "面接希望日時候補：",
+        `第1候補：${formatInterview(formData, 1)}`,
+        `第2候補：${formatInterview(formData, 2)}`,
+        `第3候補：${formatInterview(formData, 3)}`,
+        "",
+        "志望動機・質問：",
+        formData.get("messageText") || "未入力"
+      ].join("\n");
+
+      const mailto = `mailto:${currentSettings.recipientEmail}?subject=${encodeURIComponent(currentSettings.mailSubject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailto;
+      successMessage.classList.add("show");
+      form.reset();
+    });
+  </script>
+</body>
+</html>
+
+
+
