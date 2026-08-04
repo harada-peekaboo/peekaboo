@@ -151,6 +151,12 @@ async function readState() {
   };
 }
 
+function adminStatus(state) {
+  return {
+    passwordChanged: (state.passwordHash || DEFAULT_PASSWORD_HASH) !== DEFAULT_PASSWORD_HASH
+  };
+}
+
 async function writeState(state) {
   const store = await getBlobStore();
   await store.setJSON(STATE_KEY, {
@@ -223,7 +229,7 @@ exports.handler = async (event) => {
 
     if (method === "GET" && pathname === "/settings") {
       const state = await readState();
-      return json(200, { settings: state.settings });
+      return json(200, { settings: state.settings, admin: adminStatus(state) });
     }
 
     if (method === "POST" && pathname === "/admin/login") {
@@ -237,7 +243,7 @@ exports.handler = async (event) => {
         role: "admin",
         exp: Date.now() + 1000 * 60 * 60 * 4
       });
-      return json(200, { token, settings: state.settings });
+      return json(200, { token, settings: state.settings, admin: adminStatus(state) });
     }
 
     if (!requireAdmin(event)) {
@@ -246,7 +252,7 @@ exports.handler = async (event) => {
 
     if (method === "GET" && pathname === "/admin/settings") {
       const state = await readState();
-      return json(200, { settings: state.settings });
+      return json(200, { settings: state.settings, admin: adminStatus(state) });
     }
 
     if (method === "POST" && pathname === "/admin/settings") {
@@ -254,14 +260,14 @@ exports.handler = async (event) => {
       const state = await readState();
       state.settings = sanitizeSettings(body.settings || {});
       await writeState(state);
-      return json(200, { settings: state.settings });
+      return json(200, { settings: state.settings, admin: adminStatus(state) });
     }
 
     if (method === "POST" && pathname === "/admin/reset-settings") {
       const state = await readState();
       state.settings = DEFAULT_SETTINGS;
       await writeState(state);
-      return json(200, { settings: state.settings });
+      return json(200, { settings: state.settings, admin: adminStatus(state) });
     }
 
     if (method === "POST" && pathname === "/admin/password") {
@@ -274,7 +280,7 @@ exports.handler = async (event) => {
       const state = await readState();
       state.passwordHash = hashPassword(newPassword);
       await writeState(state);
-      return json(200, { ok: true });
+      return json(200, { ok: true, admin: adminStatus(state) });
     }
 
     return json(404, { error: "not found" });
