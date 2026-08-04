@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ja">
 <head>
   <meta charset="utf-8">
@@ -1028,7 +1028,7 @@
         <div class="field">
           <label for="adminPassword">パスワード</label>
           <input id="adminPassword" type="password" autocomplete="current-password" required>
-          <p class="help">初期パスワード: peekaboo2026（ログイン後に変更してください）</p>
+          <p class="help" id="initialPasswordHelp" hidden>初期パスワード: peekaboo2026（ログイン後に変更してください）</p>
         </div>
         <div class="admin-actions">
           <button class="button button-dark" type="submit">ログイン</button>
@@ -1125,6 +1125,7 @@
     const adminSettingsMessage = document.getElementById("adminSettingsMessage");
     const adminPasswordForm = document.getElementById("adminPasswordForm");
     const adminPasswordMessage = document.getElementById("adminPasswordMessage");
+    const initialPasswordHelp = document.getElementById("initialPasswordHelp");
     const adminLogoutButton = document.getElementById("adminLogoutButton");
     const adminResetSettings = document.getElementById("adminResetSettings");
 
@@ -1180,6 +1181,19 @@
       return localStorage.getItem(STATIC_PASSWORD_KEY) || DEFAULT_ADMIN_PASSWORD_HASH;
     }
 
+    function setInitialPasswordHelp(passwordChanged) {
+      if (!initialPasswordHelp) return;
+      initialPasswordHelp.hidden = Boolean(passwordChanged);
+    }
+
+    function applyAdminStatus(admin = {}) {
+      if (typeof admin.passwordChanged === "boolean") {
+        setInitialPasswordHelp(admin.passwordChanged);
+        return;
+      }
+      setInitialPasswordHelp(true);
+    }
+
     function useLocalAdminMode(settings = readLocalSettings()) {
       adminMode = "local";
       adminToken = "";
@@ -1187,6 +1201,7 @@
       sessionStorage.setItem(ADMIN_LOCAL_MODE_KEY, "1");
       applyRecruitmentSettings(settings);
       fillAdminSettingsForm(settings);
+      setInitialPasswordHelp(localPasswordHash() !== DEFAULT_ADMIN_PASSWORD_HASH);
     }
 
     function shouldTryLocalAdmin(error) {
@@ -1218,8 +1233,10 @@
       try {
         const data = await apiRequest("/api/settings", { auth: false });
         applyRecruitmentSettings(data.settings);
+        applyAdminStatus(data.admin);
       } catch {
         applyRecruitmentSettings(STATIC_DEFAULT_SETTINGS);
+        setInitialPasswordHelp(location.protocol === "file:" ? localPasswordHash() !== DEFAULT_ADMIN_PASSWORD_HASH : true);
       }
     }
 
@@ -1234,6 +1251,7 @@
       const data = await apiRequest("/api/admin/settings");
       applyRecruitmentSettings(data.settings);
       fillAdminSettingsForm(data.settings);
+      applyAdminStatus(data.admin);
       return data.settings;
     }
 
@@ -1385,6 +1403,7 @@
         adminToken = data.token;
         sessionStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
         applyRecruitmentSettings(data.settings);
+        applyAdminStatus(data.admin);
         unlockAdminPanel();
         adminLoginForm.reset();
       } catch (error) {
@@ -1417,6 +1436,7 @@
         });
         applyRecruitmentSettings(data.settings);
         fillAdminSettingsForm(data.settings);
+        applyAdminStatus(data.admin);
         showAdminMessage(adminSettingsMessage, "サーバー側の設定を確定しました。");
       } catch (error) {
         showAdminMessage(adminSettingsMessage, error.message, "error");
@@ -1437,6 +1457,7 @@
         const data = await apiRequest("/api/admin/reset-settings", { method: "POST" });
         applyRecruitmentSettings(data.settings);
         fillAdminSettingsForm(data.settings);
+        applyAdminStatus(data.admin);
         showAdminMessage(adminSettingsMessage, "初期設定に戻しました。");
       } catch (error) {
         showAdminMessage(adminSettingsMessage, error.message, "error");
@@ -1454,16 +1475,18 @@
       if (adminMode === "local") {
         localStorage.setItem(STATIC_PASSWORD_KEY, await hashPassword(newPassword));
         adminPasswordForm.reset();
+        setInitialPasswordHelp(true);
         showAdminMessage(adminPasswordMessage, "簡易管理モードのパスワードを変更しました。");
         return;
       }
 
       try {
-        await apiRequest("/api/admin/password", {
+        const data = await apiRequest("/api/admin/password", {
           method: "POST",
           body: { newPassword }
         });
         adminPasswordForm.reset();
+        applyAdminStatus(data.admin);
         showAdminMessage(adminPasswordMessage, "パスワードを変更しました。");
       } catch (error) {
         showAdminMessage(adminPasswordMessage, error.message, "error");
