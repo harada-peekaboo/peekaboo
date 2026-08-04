@@ -123,7 +123,8 @@ async function getBlobStore() {
   ]);
 
   if (siteID && token) {
-    return getStore(STORE_NAME, {
+    return getStore({
+      name: STORE_NAME,
       siteID,
       token
     });
