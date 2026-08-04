@@ -1003,7 +1003,7 @@
         <address class="footer-address">
           〒150-0001 東京都渋谷区神宮前4-4-12 第一唐沢ビル3F<br>
           TEL <a href="tel:0354115422">03-5411-5422</a> / FAX 03-5411-5423<br>
-          MAIL <a href="mailto:office@peek-a-boo.co.jp">office@peek-a-boo.co.jp</a>
+          MAIL <a id="footerRecipientEmail" href="mailto:recruit@peek-a-boo.co.jp">recruit@peek-a-boo.co.jp</a>
         </address>
       </div>
       <div class="footer-bottom">
@@ -1126,6 +1126,7 @@
     const adminPasswordForm = document.getElementById("adminPasswordForm");
     const adminPasswordMessage = document.getElementById("adminPasswordMessage");
     const initialPasswordHelp = document.getElementById("initialPasswordHelp");
+    const footerRecipientEmail = document.getElementById("footerRecipientEmail");
     const adminLogoutButton = document.getElementById("adminLogoutButton");
     const adminResetSettings = document.getElementById("adminResetSettings");
 
@@ -1208,6 +1209,12 @@
       return false;
     }
 
+    function updateFooterRecipientEmail(email) {
+      if (!footerRecipientEmail || !email) return;
+      footerRecipientEmail.textContent = email;
+      footerRecipientEmail.href = `mailto:${email}`;
+    }
+
     function applyRecruitmentSettings(settings = currentSettings) {
       currentSettings = normalizeSettings(settings);
       const isOpen = currentSettings.recruitmentStatus === "open";
@@ -1215,6 +1222,7 @@
       entryClosedPanel.hidden = isOpen;
       closedMessageText.textContent = currentSettings.closedMessage;
       successMessage.textContent = currentSettings.successMessage;
+      updateFooterRecipientEmail(currentSettings.recipientEmail);
       document.querySelectorAll("[data-apply-link]").forEach((link) => {
         link.textContent = isOpen ? (link.classList.contains("header-link") ? "応募する" : "応募フォームへ") : "募集状況を見る";
       });
